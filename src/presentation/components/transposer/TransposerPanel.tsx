@@ -4,6 +4,7 @@ import { useNoteTransposition } from '@/application/hooks/useNoteTransposition'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 import { KeySelector } from './KeySelector'
+import { ScoreBuilderPanel } from '../score/ScoreBuilderPanel'
 import { ScoreIOPanel } from '../score/ScoreIOPanel'
 import { FingeringOptionsPanel } from './FingeringOptionsPanel'
 import { SolfegeNotationHelp } from './SolfegeNotationHelp'
@@ -26,6 +27,10 @@ export function TransposerPanel() {
     swapKeys,
     loadChromaticScale,
     scoreTitle,
+    scoreDraft,
+    setScoreDraft,
+    exportScoreDraft,
+    useStructuredScore,
   } = useNoteTransposition()
 
   const fromDef = getKeyDefinition(fromKey)
@@ -76,6 +81,12 @@ export function TransposerPanel() {
         </div>
 
         <div className="mt-8 space-y-5">
+          <ScoreBuilderPanel
+            draft={scoreDraft}
+            onDraftChange={setScoreDraft}
+            toKey={toKey}
+            instrumentId={targetInstrument}
+          />
           <SolfegeNotationHelp />
           <Textarea
             label="Notas a transportar"
@@ -95,6 +106,8 @@ export function TransposerPanel() {
             toKey={toKey}
             targetInstrument={targetInstrument}
             scoreTitle={scoreTitle}
+            exportScoreDraft={exportScoreDraft}
+            useStructuredScore={useStructuredScore}
           />
         </div>
 

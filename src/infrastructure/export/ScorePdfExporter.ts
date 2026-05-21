@@ -2,6 +2,11 @@ import { jsPDF } from 'jspdf'
 import type { ScoreExportPayload } from '@/application/use-cases/buildScoreExportRows'
 import { describeExportNotation, getExportClef } from './vexflowNoteFormat'
 import {
+  chunkStructuredIntoSystems,
+  paginateStructuredSystems,
+  renderStructuredScorePageToDataUrl,
+} from './structuredScoreRenderer'
+import {
   chunkScoreIntoSystems,
   ensureVexFlowFonts,
   paginateScoreSystems,
@@ -44,9 +49,14 @@ export async function exportScoreToPdf(payload: ScoreExportPayload): Promise<voi
     clef,
   )
 
-  const systems = chunkScoreIntoSystems(payload.rows)
-  const pages = paginateScoreSystems(systems)
+  const useStructured = Boolean(payload.structuredNotation?.measures.length)
   const host = prepareExportHost()
+
+  const pages = useStructured
+    ? paginateStructuredSystems(
+        chunkStructuredIntoSystems(payload.structuredNotation!),
+      )
+    : paginateScoreSystems(chunkScoreIntoSystems(payload.rows))
 
   for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
     const pageSystems = pages[pageIndex]
@@ -62,7 +72,18 @@ export async function exportScoreToPdf(payload: ScoreExportPayload): Promise<voi
     canvas.style.height = `${pageHeight}px`
     host.appendChild(canvas)
 
-    const { dataUrl, error } = renderScorePageToDataUrl(pageSystems, clef, canvas)
+    const { dataUrl, error } = useStructured
+      ? renderStructuredScorePageToDataUrl(
+          pageSystems as ReturnType<typeof chunkStructuredIntoSystems>,
+          payload.structuredNotation!,
+          clef,
+          canvas,
+        )
+      : renderScorePageToDataUrl(
+          pageSystems as ReturnType<typeof chunkScoreIntoSystems>,
+          clef,
+          canvas,
+        )
     host.removeChild(canvas)
 
     if (pageIndex > 0) {

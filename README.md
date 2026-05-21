@@ -63,6 +63,16 @@ Tras transportar, usa **Descargar PDF (pentagrama)**: partitura con clave, notas
 - `npm run build` — producción
 - `npm run preview` — vista previa del build
 
+## Publicar en GitHub Pages
+
+Sitio: [https://dubermontoya.github.io/Transportador_Notas_Musicales/](https://dubermontoya.github.io/Transportador_Notas_Musicales/)
+
+1. En el repo → **Settings** → **Pages** → **Build and deployment** → origen: **GitHub Actions** (no subas la carpeta raíz del código sin compilar).
+2. Haz push a `main`: el workflow `.github/workflows/deploy-pages.yml` ejecuta `npm run build` y publica la carpeta `dist`.
+3. El `base` de Vite en producción es `/Transportador_Notas_Musicales/` para que carguen JS y CSS.
+
+Si ves pantalla en blanco, suele ser por rutas `/assets/...` sin el prefijo del repositorio o por publicar el código fuente en lugar del build.
+
 ## Librería de conversión
 
 No existe una librería que convierta “clave Sib → clave Fa” directamente; la convención es por **offset en semitonos** entre partitura y sonido real. **Tonal.js** aplica la transposición intervalar (`Note.transpose`, `Interval.fromSemitones`) una vez calculado el desfase entre claves.

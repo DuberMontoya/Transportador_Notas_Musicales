@@ -8,6 +8,11 @@ import {
   getFingeringForStaffNote,
 } from '@/shared/utils/allRegisterFingerings'
 import { formatNoteToSolfege } from '@/shared/utils/parseNotesInput'
+import {
+  buildStructuredScoreNotation,
+  type StructuredScoreNotation,
+} from '@/application/use-cases/buildStructuredScoreNotation'
+import type { ScoreDraft } from '@/domain/entities/ScoreDraft'
 import { getExportClef } from '@/infrastructure/export/vexflowNoteFormat'
 import { buildStaffNotesForExport, toTonalStaffNote } from '@/shared/utils/staffNotePitch'
 import { Note } from 'tonal'
@@ -32,6 +37,8 @@ export interface ScoreExportPayload {
   instrumentId: InstrumentId | null
   rows: ScoreExportRow[]
   staffNotes: string[]
+  /** Ritmo, compases, ligaduras (constructor de partitura). */
+  structuredNotation?: StructuredScoreNotation
 }
 
 export function buildScoreExportPayload(options: {
@@ -40,6 +47,8 @@ export function buildScoreExportPayload(options: {
   toKey: TranspositionKeyId
   instrumentId: InstrumentId | null
   scoreTitle?: string
+  /** Borrador con figuras y compases (normalmente ya transportado). */
+  scoreDraft?: ScoreDraft | null
 }): ScoreExportPayload | null {
   const valid = options.notes.filter((n) => n.valid)
   if (valid.length === 0) return null
@@ -101,8 +110,13 @@ export function buildScoreExportPayload(options: {
     .map((r) => r.staffNote)
     .filter((n) => Note.get(n).name)
 
+  const structuredNotation =
+    options.scoreDraft && options.scoreDraft.events.length > 0
+      ? buildStructuredScoreNotation(options.scoreDraft, rows)
+      : undefined
+
   return {
-    title: options.scoreTitle ?? 'Partitura transportada',
+    title: options.scoreTitle ?? options.scoreDraft?.title ?? 'Partitura transportada',
     fromLabel,
     toLabel,
     instrumentLabel,
@@ -110,5 +124,6 @@ export function buildScoreExportPayload(options: {
     instrumentId: options.instrumentId,
     rows,
     staffNotes,
+    structuredNotation,
   }
 }

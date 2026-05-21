@@ -25,9 +25,9 @@ export const MEASURES_PER_SYSTEM = 2
 export const NOTES_PER_SYSTEM = NOTES_PER_MEASURE * MEASURES_PER_SYSTEM
 export const SYSTEMS_PER_PAGE = 4
 
-const STAVE_WIDTH = 700
-const SYSTEM_HEIGHT = 158
-const TOP_MARGIN = 44
+export const STAVE_WIDTH = 700
+export const SYSTEM_HEIGHT = 158
+export const TOP_MARGIN = 44
 
 let fontsReady: Promise<void> | null = null
 

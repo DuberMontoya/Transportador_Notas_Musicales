@@ -3,6 +3,7 @@ import { FileDown, FileMusic } from 'lucide-react'
 import { exportScoreToPdf } from '@/infrastructure/export/ScorePdfExporter'
 import { buildScoreExportPayload } from '@/application/use-cases/buildScoreExportRows'
 import type { TransposeNotesResult } from '@/application/use-cases/transposeNotes'
+import type { ScoreDraft } from '@/domain/entities/ScoreDraft'
 import type { InstrumentId } from '@/domain/entities/Fingering'
 import type { TranspositionKeyId } from '@/domain/entities/TranspositionKey'
 import { Button } from '../ui/Button'
@@ -15,6 +16,8 @@ interface ScoreIOPanelProps {
   toKey: TranspositionKeyId
   targetInstrument: InstrumentId | null
   scoreTitle?: string
+  exportScoreDraft?: ScoreDraft
+  useStructuredScore?: boolean
 }
 
 export function ScoreIOPanel({
@@ -25,6 +28,8 @@ export function ScoreIOPanel({
   toKey,
   targetInstrument,
   scoreTitle,
+  exportScoreDraft,
+  useStructuredScore = false,
 }: ScoreIOPanelProps) {
   const [exportStatus, setExportStatus] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
@@ -36,6 +41,7 @@ export function ScoreIOPanel({
       toKey,
       instrumentId: targetInstrument,
       scoreTitle,
+      scoreDraft: useStructuredScore ? exportScoreDraft : null,
     })
 
     if (!payload) return
